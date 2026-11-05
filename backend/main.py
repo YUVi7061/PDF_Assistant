@@ -185,7 +185,7 @@ def eval_run(req: EvalRequest):
     return evals.run_dataset_eval(graph, bedrock, req.doc_ids, req.cases, req.generation_model, req.judge_model)
 
 
-PUBLIC_DIR = Path(__file__).resolve().parents[1] / "public"
+PUBLIC_DIR = Path(__file__).resolve().parent / "static"
 
 
 @app.get("/", include_in_schema=False)

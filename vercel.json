@@ -3,7 +3,7 @@
   "functions": {
     "app.py": {
       "maxDuration": 60,
-      "includeFiles": "public/**"
+      "includeFiles": "backend/static/**"
     }
   }
 }
