@@ -72,21 +72,33 @@ class VectorStore:
         return response
 
     def _ensure_bucket(self):
+        headers = {
+            "apikey": self._supabase_key,
+            "Authorization": f"Bearer {self._supabase_key}",
+            "Content-Type": "application/json",
+        }
         response = requests.post(
             f"{self._supabase_url}/storage/v1/bucket",
-            headers={
-                "apikey": self._supabase_key,
-                "Authorization": f"Bearer {self._supabase_key}",
-                "Content-Type": "application/json",
-            },
+            headers=headers,
             json={"id": self._bucket, "name": self._bucket, "public": False},
             timeout=30,
         )
-        already_exists = response.status_code == 409 or (
-            response.status_code == 400 and "already exists" in response.text.lower()
+        if response.ok:
+            return
+
+        existing = requests.get(
+            f"{self._supabase_url}/storage/v1/bucket/{self._bucket}",
+            headers=headers,
+            timeout=30,
         )
-        if not response.ok and not already_exists:
-            raise RuntimeError(f"Could not initialize Supabase Storage bucket (HTTP {response.status_code}).")
+        if existing.ok:
+            return
+
+        detail = response.text[:300]
+        raise RuntimeError(
+            f"Could not initialize Supabase Storage bucket '{self._bucket}' "
+            f"(create HTTP {response.status_code}, lookup HTTP {existing.status_code}): {detail}"
+        )
 
     def _load_remote(self):
         offset = 0
