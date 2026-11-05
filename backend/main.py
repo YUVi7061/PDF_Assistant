@@ -2,13 +2,11 @@ import hashlib
 import hmac
 import logging
 import os
-from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from langchain_core.messages import AIMessage, HumanMessage
 from pydantic import BaseModel, Field
 from starlette.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
 
 from . import config, evals
 from .graph import build_graph, turn_input
@@ -199,7 +197,3 @@ def eval_run(req: EvalRequest):
     if missing:
         raise HTTPException(404, f"Unknown document(s): {missing}")
     return evals.run_dataset_eval(graph, bedrock, req.doc_ids, req.cases, req.generation_model, req.judge_model)
-
-
-PUBLIC_DIR = Path(__file__).resolve().parent / "static"
-app.mount("/", StaticFiles(directory=PUBLIC_DIR, html=True), name="frontend")
