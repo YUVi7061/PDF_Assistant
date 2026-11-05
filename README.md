@@ -28,31 +28,22 @@ Streamlit ──HTTP──► FastAPI ──► LangGraph (MemorySaver checkpoin
 
 If pip is blocked by a proxy: `pip install -r requirements.txt --proxy http://user:pass@proxy:port` (or use your internal PyPI mirror).
 
-## Deploy to Vercel
+## Deploy with Streamlit
 
-The Vercel deployment serves the browser UI from `public/` through Vercel's CDN and routes API requests under `/api` to the root FastAPI entrypoint. Supabase Storage persists PDF chunks and vectors. The existing Streamlit UI remains available for local use. No internal rewrites are needed.
+Streamlit Community Cloud hosts the UI, while Render runs the FastAPI backend. Supabase Storage keeps document vectors durable across backend restarts.
 
-1. Push the repository to GitHub and import it into Vercel. Keep the project root as the root directory; no build command is needed.
-2. Create a Supabase project. Set these environment variables in Vercel for the Production environment:
-   - `SUPABASE_URL`: the project URL.
-   - `SUPABASE_SERVICE_ROLE_KEY`: the server-side service-role key. Never expose this in browser code.
-   - `GROQ_API_KEY`: the Groq API key.
-   - `GEMINI_API_KEY`: used for Gemini document embeddings.
-   - `APP_ACCESS_TOKEN`: a long random token to protect all API endpoints. Enter it in the app's Deployment access section.
-3. Set the model and upload settings:
-   - `DEFAULT_GENERATION_MODEL=groq-llama`
-   - `GROQ_GEN_MODEL=openai/gpt-oss-20b`
-   - `DEFAULT_EMBEDDING_MODEL=gemini-embed`
-   - `GEMINI_EMBED_MODEL=gemini-embedding-001`
-   - `REWRITE_MODEL=groq-llama`
-   - `JUDGE_MODEL=groq-llama`
-   - `MAX_UPLOAD_MB=4`
-   - `CHUNK_SIZE=1800` and `CHUNK_OVERLAP=300`
-4. Redeploy. The backend creates a private `pdf-assistant-vectors` bucket on first startup; override its name with `SUPABASE_STORAGE_BUCKET` if needed.
+1. In Render, choose **New → Blueprint** and select this GitHub repository. Render reads `render.yaml` and creates the FastAPI service.
+2. In the Render service's environment settings, enter `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GROQ_API_KEY`, and `GEMINI_API_KEY`. Keep these values private. Set a long random `APP_ACCESS_TOKEN`; the service creates its private `pdf-assistant-vectors` bucket on first startup.
+3. Wait for the Render service to become healthy, then copy its public URL, for example `https://pdf-assistant-api.onrender.com`.
+4. On [Streamlit Community Cloud](https://share.streamlit.io/), create an app from this repository, select branch `main`, and set the main file to `frontend/app.py`.
+5. In the Streamlit app's **Settings → Secrets**, add the backend URL and the exact same access token configured in Render:
+   ```toml
+   BACKEND_URL = "https://your-api.onrender.com"
+   APP_ACCESS_TOKEN = "your-long-random-token"
+   ```
+6. Deploy or reboot the Streamlit app. Upload a PDF and try a question.
 
-Vercel's serverless request and execution limits apply. The UI limits PDFs to 4 MB to leave room for multipart upload overhead. Long embedding or generation requests can exceed the function duration allowed by your Vercel plan. Documents stored in a local `data/` directory are not migrated; upload them again after deployment. Chat history is kept in the browser and sent with each request so follow-ups survive function cold starts.
-
-The deployment is not protected unless `APP_ACCESS_TOKEN` is set. Use a unique random value, keep it in Vercel's encrypted environment settings, and do not commit it.
+The root `requirements.txt` contains the Streamlit UI dependencies; Render installs `requirements-local.txt`, including Uvicorn. Free Render services may sleep while idle, so the first request can take longer. Uploads are limited by the backend's `MAX_UPLOAD_MB` setting. Existing local vector files are not migrated; upload those PDFs again after deployment.
 
 ## Privacy
 Gemini/Groq are third-party services: your question and the retrieved PDF text are sent to them, and free tiers may be used

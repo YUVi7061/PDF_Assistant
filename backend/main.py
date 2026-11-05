@@ -37,7 +37,7 @@ async def strip_api_prefix(request: Request, call_next):
 
 @app.middleware("http")
 async def require_access_token(request: Request, call_next):
-    public_paths = {"/", "/index.html", "/app.js", "/styles.css"}
+    public_paths = {"/", "/index.html", "/app.js", "/styles.css", "/health"}
     if config.APP_ACCESS_TOKEN and request.url.path not in public_paths:
         expected = f"Bearer {config.APP_ACCESS_TOKEN}"
         supplied = request.headers.get("authorization", "")

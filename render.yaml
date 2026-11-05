@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: pdf-assistant-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements-local.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: DEFAULT_GENERATION_MODEL
+        value: groq-llama
+      - key: GROQ_GEN_MODEL
+        value: openai/gpt-oss-20b
+      - key: DEFAULT_EMBEDDING_MODEL
+        value: gemini-embed
+      - key: GEMINI_EMBED_MODEL
+        value: gemini-embedding-001
+      - key: REWRITE_MODEL
+        value: groq-llama
+      - key: JUDGE_MODEL
+        value: groq-llama
+      - key: MAX_UPLOAD_MB
+        value: "25"
+      - key: SUPABASE_STORAGE_BUCKET
+        value: pdf-assistant-vectors
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: APP_ACCESS_TOKEN
+        sync: false

@@ -6,13 +6,27 @@ import pandas as pd
 import requests
 import streamlit as st
 
-API = os.getenv("BACKEND_URL", "http://localhost:8000")
+
+def setting(name: str, default: str = "") -> str:
+    try:
+        value = st.secrets.get(name)
+    except Exception:  # noqa: BLE001  secrets are optional during local development
+        value = None
+    return value or os.getenv(name, default)
+
+
+API = setting("BACKEND_URL", "http://localhost:8000").rstrip("/")
+API_TOKEN = setting("APP_ACCESS_TOKEN")
 
 st.set_page_config(page_title="PDF Assistant", page_icon="📄", layout="wide")
 
 
 def api(method: str, path: str, **kw):
     kw.setdefault("timeout", 600)
+    headers = dict(kw.pop("headers", {}))
+    if API_TOKEN:
+        headers.setdefault("Authorization", f"Bearer {API_TOKEN}")
+    kw["headers"] = headers
     r = requests.request(method, f"{API}{path}", **kw)
     if not r.ok:
         try:
