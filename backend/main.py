@@ -6,7 +6,7 @@ import os
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from langchain_core.messages import AIMessage, HumanMessage
 from pydantic import BaseModel, Field
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, RedirectResponse
 
 from . import config, evals
 from .graph import build_graph, turn_input
@@ -18,6 +18,11 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("pdf-assistant")
 
 app = FastAPI(title="PDF Assistant", version="1.0")
+
+
+@app.get("/", include_in_schema=False)
+def frontend_redirect():
+    return RedirectResponse("/index.html", status_code=307)
 
 
 @app.middleware("http")
