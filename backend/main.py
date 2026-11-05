@@ -2,8 +2,10 @@ import hashlib
 import hmac
 import logging
 import os
+from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi.staticfiles import StaticFiles
 from langchain_core.messages import AIMessage, HumanMessage
 from pydantic import BaseModel, Field
 from starlette.responses import JSONResponse
@@ -22,7 +24,8 @@ app = FastAPI(title="PDF Assistant", version="1.0")
 
 @app.middleware("http")
 async def require_access_token(request: Request, call_next):
-    if config.APP_ACCESS_TOKEN:
+    public_paths = {"/", "/index.html", "/app.js", "/styles.css"}
+    if config.APP_ACCESS_TOKEN and request.url.path not in public_paths:
         expected = f"Bearer {config.APP_ACCESS_TOKEN}"
         supplied = request.headers.get("authorization", "")
         if not hmac.compare_digest(supplied, expected):
@@ -181,3 +184,10 @@ def eval_run(req: EvalRequest):
     if missing:
         raise HTTPException(404, f"Unknown document(s): {missing}")
     return evals.run_dataset_eval(graph, bedrock, req.doc_ids, req.cases, req.generation_model, req.judge_model)
+
+
+app.mount(
+    "/",
+    StaticFiles(directory=Path(__file__).resolve().parents[1] / "public", html=True),
+    name="frontend",
+)
