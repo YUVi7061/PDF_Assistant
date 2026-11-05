@@ -199,4 +199,4 @@ def eval_run(req: EvalRequest):
     return evals.run_dataset_eval(graph, bedrock, req.doc_ids, req.cases, req.generation_model, req.judge_model)
 
 
-app.frontend("/", directory="public", fallback="index.html")
+app.frontend("/", directory="public", fallback="index.html", check_dir=False)
