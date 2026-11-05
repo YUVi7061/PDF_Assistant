@@ -1,0 +1,23 @@
+[
+  {
+    "question": "REPLACE: a question whose answer is in your PDF",
+    "type": "answerable",
+    "reference": "REPLACE: the ground-truth answer in one or two sentences",
+    "expected_pages": [1],
+    "expected_keywords": ["REPLACE"]
+  },
+  {
+    "question": "REPLACE: a second answerable question",
+    "type": "answerable",
+    "reference": "REPLACE: ground truth",
+    "expected_pages": [2]
+  },
+  {
+    "question": "What is the capital of Australia?",
+    "type": "unanswerable"
+  },
+  {
+    "question": "What was the CEO's favourite colour in 1995?",
+    "type": "unanswerable"
+  }
+]

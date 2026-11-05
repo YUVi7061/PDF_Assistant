@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f2f5f2">
+    <title>PDF Assistant</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="/" aria-label="PDF Assistant home">
+          <span class="brand-mark">P</span>
+          <span>Papertrail<small>DOCUMENT ASSISTANT</small></span>
+        </a>
+
+        <section class="side-section">
+          <div class="section-heading"><h2>Your library</h2><span id="doc-count">0</span></div>
+          <form id="upload-form" class="upload-box">
+            <label for="pdf-file" class="upload-label">Add a PDF</label>
+            <input id="pdf-file" type="file" accept="application/pdf,.pdf" required>
+            <label for="embedding-model" class="field-label">Embedding model</label>
+            <select id="embedding-model" aria-label="Embedding model"></select>
+            <button class="button button-dark" type="submit">Process document</button>
+            <p class="muted upload-note">Text-based PDFs, up to 4 MB</p>
+          </form>
+          <div id="documents" class="document-list" aria-live="polite"></div>
+          <button id="delete-documents" class="button button-quiet" type="button" disabled>Remove selected</button>
+        </section>
+
+        <div class="sidebar-bottom">
+          <details class="access-settings">
+            <summary>Deployment access</summary>
+            <label for="access-token" class="field-label">App access token</label>
+            <input id="access-token" type="password" autocomplete="off" placeholder="Only if configured">
+            <button id="save-token" class="button button-quiet" type="button">Save for this tab</button>
+          </details>
+          <p class="sidebar-foot">Answers are grounded in the selected documents.</p>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">PRIVATE DOCUMENT WORKSPACE</p>
+            <h1>Ask your documents</h1>
+          </div>
+          <div class="topbar-actions">
+            <button id="new-chat" class="button button-outline" type="button">New conversation</button>
+            <div class="model-status"><span class="status-dot"></span><span>Groq</span><span class="status-divider"></span><span id="status-text">Connecting</span></div>
+          </div>
+        </header>
+
+        <section id="conversation" class="conversation" aria-live="polite">
+          <div id="welcome" class="welcome-state">
+            <p class="welcome-index">01 / READ</p>
+            <h2>Find the detail<br>you need.</h2>
+            <p>Choose a document from your library, then ask a question. Answers include page references so you can check the source.</p>
+          </div>
+          <div id="messages" class="messages"></div>
+        </section>
+
+        <form id="chat-form" class="composer">
+          <label class="sr-only" for="question">Your question</label>
+          <textarea id="question" rows="1" placeholder="Ask a question about the selected PDFs..." maxlength="2000" required></textarea>
+          <div class="composer-bottom">
+            <span id="selection-hint" class="muted">Select at least one document</span>
+            <button id="send-question" class="button button-accent" type="submit" disabled>Ask <span aria-hidden="true">&#8594;</span></button>
+          </div>
+        </form>
+        <div id="notice" class="notice" role="status" aria-live="polite"></div>
+      </main>
+    </div>
+  </body>
+</html>
