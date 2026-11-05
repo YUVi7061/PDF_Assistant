@@ -7,7 +7,8 @@ from pathlib import Path
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from langchain_core.messages import AIMessage, HumanMessage
 from pydantic import BaseModel, Field
-from starlette.responses import FileResponse, JSONResponse
+from starlette.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from . import config, evals
 from .graph import build_graph, turn_input
@@ -19,6 +20,21 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("pdf-assistant")
 
 app = FastAPI(title="PDF Assistant", version="1.0")
+
+
+@app.middleware("http")
+async def strip_api_prefix(request: Request, call_next):
+    path = request.scope["path"]
+    if path == "/api":
+        request.scope["path"] = "/"
+    elif path.startswith("/api/"):
+        request.scope["path"] = path[4:]
+    raw_path = request.scope.get("raw_path", b"")
+    if raw_path == b"/api":
+        request.scope["raw_path"] = b"/"
+    elif raw_path.startswith(b"/api/"):
+        request.scope["raw_path"] = raw_path[4:]
+    return await call_next(request)
 
 
 @app.middleware("http")
@@ -186,18 +202,4 @@ def eval_run(req: EvalRequest):
 
 
 PUBLIC_DIR = Path(__file__).resolve().parent / "static"
-
-
-@app.get("/", include_in_schema=False)
-def frontend():
-    return FileResponse(PUBLIC_DIR / "index.html")
-
-
-@app.get("/app.js", include_in_schema=False)
-def frontend_script():
-    return FileResponse(PUBLIC_DIR / "app.js", media_type="text/javascript")
-
-
-@app.get("/styles.css", include_in_schema=False)
-def frontend_styles():
-    return FileResponse(PUBLIC_DIR / "styles.css", media_type="text/css")
+app.mount("/", StaticFiles(directory=PUBLIC_DIR, html=True), name="frontend")
