@@ -1,5 +1,12 @@
 .env
 .venv
 data
+frontend
+evals
+run_evals.py
+requirements-local.txt
+index.html
+app.js
+styles.css
 **/__pycache__
 *.py[cod]

@@ -1,12 +1,9 @@
 fastapi>=0.110
-uvicorn[standard]>=0.29
 python-multipart>=0.0.9
 pydantic>=2.6
-boto3>=1.35
 numpy>=1.26
 pypdf>=4.2
 langgraph>=0.2.50
 langchain-core>=0.3
-streamlit>=1.35
 requests>=2.31
 python-dotenv>=1.0

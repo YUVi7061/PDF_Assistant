@@ -15,7 +15,7 @@ Streamlit ──HTTP──► FastAPI ──► LangGraph (MemorySaver checkpoin
    cd C:\Users\yuvraj.paygude\Documents\PDF_Assistant
    python -m venv .venv
    .\.venv\Scripts\Activate.ps1
-   pip install -r requirements.txt
+   pip install -r requirements-local.txt
    copy .env.example .env
    notepad .env        # paste GEMINI_API_KEY=...
    ```
@@ -30,7 +30,7 @@ If pip is blocked by a proxy: `pip install -r requirements.txt --proxy http://us
 
 ## Deploy to Vercel
 
-The Vercel deployment uses the browser UI at `/`, the FastAPI function under `/api`, and Supabase Storage for durable PDF chunks and vectors. The existing Streamlit UI remains available for local use.
+The Vercel deployment serves the browser UI from `public/`, routes API requests through the root FastAPI entrypoint at `/api`, and uses Supabase Storage for durable PDF chunks and vectors. The existing Streamlit UI remains available for local use. No internal rewrites are needed.
 
 1. Push the repository to GitHub and import it into Vercel. Keep the project root as the root directory; no build command is needed.
 2. Create a Supabase project. Set these environment variables in Vercel for the Production environment:
